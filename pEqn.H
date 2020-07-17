@@ -40,14 +40,16 @@
 
     phiHbyA += phig;
 
-    // find difference between phi and phiHbyA + pGrad-contribution
+    // find face velocity difference between phi and phiHbyA + pGrad-contribution
+    // resulting from ddtCorr and adjustPhi operations
     {
-        surfaceScalarField phiDiff(
-            "phiDiff",
-            phi - (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf())
+        surfaceScalarField faceVelDiff(
+            "faceVelDiff",
+            (phi - (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf()))/mesh.magSf()
         );
 
-        Info << "phiDiff  min: " << gMin(phiDiff) << tab << "max: " << gMax(phiDiff) << endl;
+        Info << "faceVelDiff  min: " << gMin(faceVelDiff) << tab
+             << "max: " << gMax(faceVelDiff) << endl;
     }
 
 
