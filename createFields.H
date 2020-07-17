@@ -207,3 +207,6 @@ mesh.setFluxRequired(p_rgh.name());
 mesh.setFluxRequired(pp.name());
 
 #include "createRhieChow.H"
+
+// create another face-flux field derived from ppEqn and comapre with phi
+surfaceScalarField phi2("phi2", phi);

@@ -103,33 +103,35 @@
         }
     }
 
-    // // Non-orthogonal corrector loop.
-    // while (pimple.correctNonOrthogonal())
-    // {
-    //     fvScalarMatrix p_rghEqn
-    //     (
-    //         fvm::laplacian(rAUf, p_rgh) == fvc::div(phiHbyA)
-    //     );
+    // update phi2
+    phi2 = (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf());
 
-    //     p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+    // Non-orthogonal corrector loop.
+    while (pimple.correctNonOrthogonal())
+    {
+        fvScalarMatrix ppEqn
+        (
+            fvm::laplacian(rAUf, pp) == fvc::div(phi2)
+        );
 
-    //     p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
+        ppEqn.setReference(pRefCell, 0.0);
+        ppEqn.solve(mesh.solver(pp.select(pimple.finalInnerIter())));
 
-    //     if (pimple.finalNonOrthogonalIter())
-    //     {
-    //         // Calculate the conservative fluxes
-    //         phi = phiHbyA - p_rghEqn.flux();
+        if (pimple.finalNonOrthogonalIter())
+        {
+            // Calculate the conservative fluxes
+            phi2 -= ppEqn.flux();
 
-    //         // Explicitly relax pressure for momentum corrector
-    //         p_rgh.relax();
+            // // Explicitly relax pressure for momentum corrector
+            // pp.relax();
 
-    //         // Correct the momentum source with the pressure gradient flux
-    //         // calculated from the relaxed pressure
-    //         U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
-    //         U.correctBoundaryConditions();
-    //         fvOptions.correct(U);
-    //     }
-    // }
+            // // Correct the momentum source with the pressure gradient flux
+            // // calculated from the relaxed pressure
+            // U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
+            // U.correctBoundaryConditions();
+            // fvOptions.correct(U);
+        }
+    }
 
     // #include "adjustPressureLevel.H"
 }

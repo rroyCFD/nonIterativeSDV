@@ -108,6 +108,14 @@ int main(int argc, char *argv[])
             #include "ppEqn.H"
 
             #include "pEqn.H"
+
+            {
+                surfaceScalarField deltaPhi("deltaPhi", (phi - phi2));
+                Info<< "Diffrence of phi between p_rgh and pp solve: deltaPhi\n"
+                    << "min: " << gMin(deltaPhi) << tab
+                    << "max: " << gMax(deltaPhi) << endl;
+
+            }
             #include "turbulenceCorrect.H"
             #include "TEqn.H"
 
