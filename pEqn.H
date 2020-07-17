@@ -45,7 +45,7 @@
     {
         surfaceScalarField faceVelDiff(
             "faceVelDiff",
-            (phi - (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf()))/mesh.magSf()
+            (fvc::flux(U) - (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf()))/mesh.magSf()
         );
 
         Info << "faceVelDiff  min: " << gMin(faceVelDiff) << tab
