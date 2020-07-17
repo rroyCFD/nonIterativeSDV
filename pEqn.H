@@ -40,6 +40,18 @@
 
     phiHbyA += phig;
 
+    // find difference between phi and phiHbyA + pGrad-contribution
+    {
+        surfaceScalarField phiDiff(
+            "phiDiff",
+            phi - (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf())
+        );
+
+        Info << "phiDiff  min: " << gMin(phiDiff) << tab << "max: " << gMax(phiDiff) << endl;
+    }
+
+
+
     // Update the fixedFluxPressure BCs to ensure flux consistency
     setSnGrad<fixedFluxPressureFvPatchScalarField>
     (
