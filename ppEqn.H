@@ -69,30 +69,28 @@
              << "max: " << gMax(faceVelDiff) << endl;
     }
 
+    // Update the fixedFluxPressure BCs to ensure flux consistency
+    setSnGrad<fixedFluxPressureFvPatchScalarField>
+    (
+        p_rgh.boundaryFieldRef(),
+        (
+            phiHbyA.boundaryField()
+          - phiFixedFlux.boundaryField()
+        )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
+    );
+    p_rgh.correctBoundaryConditions();
 
+    forAll(p_rgh.boundaryField(), patchi)
+    {
+        if(isType<fixedFluxPressureFvPatchScalarField> (p_rgh.boundaryField()[patchi]))
+        {
+            fixedFluxPressureFvPatchScalarField& p_rghGradPatch = refCast<fixedFluxPressureFvPatchScalarField>(p_rgh.boundaryFieldRef()[patchi]);
 
-    // // Update the fixedFluxPressure BCs to ensure flux consistency
-    // setSnGrad<fixedFluxPressureFvPatchScalarField>
-    // (
-    //     p_rgh.boundaryFieldRef(),
-    //     (
-    //         phiHbyA.boundaryField()
-    //       - phiFixedFlux.boundaryField()
-    //     )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
-    // );
-    // p_rgh.correctBoundaryConditions();
-
-    // forAll(p_rgh.boundaryField(), patchi)
-    // {
-    //     if(isType<fixedFluxPressureFvPatchScalarField> (p_rgh.boundaryField()[patchi]))
-    //     {
-    //         fixedFluxPressureFvPatchScalarField& p_rghGradPatch = refCast<fixedFluxPressureFvPatchScalarField>(p_rgh.boundaryFieldRef()[patchi]);
-
-    //         Info<< mesh.boundary()[patchi].name()                 << tab
-    //             << "minGrad: " << gMin(p_rghGradPatch.gradient()) << tab
-    //             << "maxGrad: " << gMax(p_rghGradPatch.gradient()) << endl;
-    //     }
-    // }
+            Info<< mesh.boundary()[patchi].name()                 << tab
+                << "minGrad: " << gMin(p_rghGradPatch.gradient()) << tab
+                << "maxGrad: " << gMax(p_rghGradPatch.gradient()) << endl;
+        }
+    }
 
     // // Non-orthogonal corrector loop.
     // while (pimple.correctNonOrthogonal())
