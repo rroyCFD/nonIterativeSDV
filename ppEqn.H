@@ -84,11 +84,22 @@
     {
         if(isType<fixedFluxPressureFvPatchScalarField> (p_rgh.boundaryField()[patchi]))
         {
-            fixedFluxPressureFvPatchScalarField& p_rghGradPatch = refCast<fixedFluxPressureFvPatchScalarField>(p_rgh.boundaryFieldRef()[patchi]);
+            fixedFluxPressureFvPatchScalarField& p_rghGradPatch =
+                refCast<fixedFluxPressureFvPatchScalarField>(p_rgh.boundaryFieldRef()[patchi]);
 
-            Info<< mesh.boundary()[patchi].name()                 << tab
+            Info<< mesh.boundary()[patchi].name()  << "\tp_rgh"   << tab
                 << "minGrad: " << gMin(p_rghGradPatch.gradient()) << tab
                 << "maxGrad: " << gMax(p_rghGradPatch.gradient()) << endl;
+
+            // assign the same gradient to pp
+            fixedGradientFvPatchScalarField& ppGradPatch        =
+                refCast<fixedGradientFvPatchScalarField>(pp.boundaryFieldRef()[patchi]);
+
+            ppGradPatch.gradient() = p_rghGradPatch.gradient();
+            Info<< mesh.boundary()[patchi].name() << "\tpp"    << tab
+                << "minGrad: " << gMin(ppGradPatch.gradient()) << tab
+                << "maxGrad: " << gMax(ppGradPatch.gradient()) << endl;
+
         }
     }
 
