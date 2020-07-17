@@ -184,7 +184,7 @@ if (pRefCell != -1)
 }
 reduce(hRef_,sumOp<vector>());
 dimensionedVector hRef("hRef",dimLength,hRef_);
-    
+
 buoyancyModel Boussinesq(T, TRef, hRef);
 
 
@@ -198,6 +198,12 @@ Info << "Adjusting the background pressure level to agree with reference level" 
 // updated pressure field, so add it to the list kept internally in OpenFOAM.
 mesh.setFluxRequired(p_rgh.name());
 
-
 // Allows the user to set fvOptions, such as additional source terms.
 #include "createFvOptions.H"
+
+
+// create pressure correction field
+#include "createpp.H"
+mesh.setFluxRequired(pp.name());
+
+#include "createRhieChow.H"

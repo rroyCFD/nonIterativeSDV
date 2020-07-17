@@ -49,6 +49,7 @@ Description
 #include "pimpleControl.H"
 #include "ABL.H"
 #include "defineBlendingFunction.H" // for divergence scheme blending
+#include "orthogonalSnGrad.H" // for explicit RhieChow correction
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -104,6 +105,8 @@ int main(int argc, char *argv[])
 
             // non-iterative approach: a test for segregation error
             #include "UEqn.H"
+            #include "ppEqn.H"
+
             #include "pEqn.H"
             #include "turbulenceCorrect.H"
             #include "TEqn.H"
