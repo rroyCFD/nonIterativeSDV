@@ -114,7 +114,10 @@
             fvm::laplacian(rAUf, pp) == fvc::div(phi2)
         );
 
-        ppEqn.setReference(pRefCell, 0.0);
+        scalar ppRefValue = pRefValue - getRefCellValue(p_rgh, pRefCell);
+        Info << "ppRefValue: " << ppRefValue << endl;
+
+        ppEqn.setReference(pRefCell, ppRefValue);
         ppEqn.solve(mesh.solver(pp.select(pimple.finalInnerIter())));
 
         if (pimple.finalNonOrthogonalIter())

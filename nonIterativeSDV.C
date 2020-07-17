@@ -105,15 +105,17 @@ int main(int argc, char *argv[])
 
             // non-iterative approach: a test for segregation error
             #include "UEqn.H"
+            Info << "\n ********* ppEqn solve ********* " << endl;
             #include "ppEqn.H"
 
+            Info << "\n ******** p_rghEqn solve ******** " << endl;
             #include "pEqn.H"
 
             {
                 surfaceScalarField deltaPhi("deltaPhi", (phi - phi2));
-                Info<< "Diffrence of phi between p_rgh and pp solve: deltaPhi\n"
+                Info<< "\n\nDiffrence of phi between p_rgh and pp solve: deltaPhi\n"
                     << "min: " << gMin(deltaPhi) << tab
-                    << "max: " << gMax(deltaPhi) << endl;
+                    << "max: " << gMax(deltaPhi) << nl << endl;
 
             }
             #include "turbulenceCorrect.H"
