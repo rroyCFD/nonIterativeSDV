@@ -125,6 +125,10 @@
             // Calculate the conservative fluxes
             phi2 -= ppEqn.flux();
 
+            surfaceScalarField& ppEqnFlux = ppEqn.flux().ref();
+            Info<< "min(ppEqn.flux()): " << gMin(ppEqnFlux) << tab
+                << "max(ppEqn.flux()): " << gMax(ppEqnFlux) << endl;
+
             // // Explicitly relax pressure for momentum corrector
             // pp.relax();
 

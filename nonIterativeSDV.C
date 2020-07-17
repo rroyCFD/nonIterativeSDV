@@ -117,6 +117,10 @@ int main(int argc, char *argv[])
                     << "min: " << gMin(deltaPhi) << tab
                     << "max: " << gMax(deltaPhi) << nl << endl;
 
+                Info<< "phi "  << tab
+                    << "min: " << gMin(phi) << tab
+                    << "max: " << gMax(phi) << nl << endl;
+
             }
             #include "turbulenceCorrect.H"
             #include "TEqn.H"
