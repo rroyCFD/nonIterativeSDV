@@ -57,18 +57,6 @@
 
     phiHbyA += phig;
 
-    // find face velocity difference between phi and phiHbyA + pGrad-contribution
-    // resulting from ddtCorr and adjustPhi operations
-    {
-        surfaceScalarField faceVelDiff(
-            "faceVelDiff",
-            (fvc::flux(U) - (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf()))/mesh.magSf()
-        );
-
-        Info << "faceVelDiff  min: " << gMin(faceVelDiff) << tab
-             << "max: " << gMax(faceVelDiff) << endl;
-    }
-
     // Update the fixedFluxPressure BCs to ensure flux consistency
     setSnGrad<fixedFluxPressureFvPatchScalarField>
     (
@@ -103,8 +91,22 @@
         }
     }
 
-    // update phi2
-    phi2 = (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf());
+    {
+        // update phi2
+        phi2 = (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf());
+
+        // find face velocity difference between phi and phi2
+        // resulting from  RhieChow-corr, ddtCorr and adjustPhi operations
+        surfaceScalarField faceVelDiff(
+            "faceVelDiff",
+            // (fvc::flux(U) - (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf()))/mesh.magSf()
+            (fvc::flux(U) - phi2)/mesh.magSf()
+        );
+
+        Info << "faceVelDiff  min: " << gMin(faceVelDiff) << tab
+             << "max: " << gMax(faceVelDiff) << endl;
+    }
+
 
     // Non-orthogonal corrector loop.
     while (pimple.correctNonOrthogonal())
