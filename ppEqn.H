@@ -38,63 +38,21 @@
         gradpDiff_f.clear();
     }
 
+    // adjust mass flux for variable flow boundaries
+    #include "adjustMassFlux.H"
 
-    // This part balances global mass flux.  It does it in a temporary field, and then
-    // applies the correction indirectly by setting the pressure gradient to be used in
-    // the fixedFluxPressure boundary condition on p_rgh, or directly if the zeroGradient
-    // boundary condition on p_rgh is used.
-    surfaceScalarField phiFixedFlux = phiHbyA;
-
-    adjustPhi(phiFixedFlux, U, p_rgh);
-
-    forAll(p_rgh.boundaryField(), patchi)
-    {
-        if (isA<zeroGradientFvPatchScalarField>(p_rgh.boundaryField()[patchi]))
-        {
-            phiHbyA.boundaryFieldRef()[patchi] = phiFixedFlux.boundaryField()[patchi];
-        }
-    }
-
+    // include buoyancy term in the boundary flux phiHbyA
     phiHbyA += phig;
 
-    // Update the fixedFluxPressure BCs to ensure flux consistency
-    setSnGrad<fixedFluxPressureFvPatchScalarField>
-    (
-        p_rgh.boundaryFieldRef(),
-        (
-            phiHbyA.boundaryField()
-          - phiFixedFlux.boundaryField()
-        )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
-    );
-    p_rgh.correctBoundaryConditions();
-
-    forAll(p_rgh.boundaryField(), patchi)
+    if(fixedFluxBC)
     {
-        if(isType<fixedFluxPressureFvPatchScalarField> (p_rgh.boundaryField()[patchi]))
-        {
-            fixedFluxPressureFvPatchScalarField& p_rghGradPatch =
-                refCast<fixedFluxPressureFvPatchScalarField>(p_rgh.boundaryFieldRef()[patchi]);
-
-            Info<< mesh.boundary()[patchi].name()  << "\tp_rgh"   << tab
-                << "minGrad: " << gMin(p_rghGradPatch.gradient()) << tab
-                << "maxGrad: " << gMax(p_rghGradPatch.gradient()) << endl;
-
-            // assign the same gradient to pp
-            fixedGradientFvPatchScalarField& ppGradPatch        =
-                refCast<fixedGradientFvPatchScalarField>(pp.boundaryFieldRef()[patchi]);
-
-            ppGradPatch.gradient() = p_rghGradPatch.gradient();
-            Info<< mesh.boundary()[patchi].name() << "\tpp"    << tab
-                << "minGrad: " << gMin(ppGradPatch.gradient()) << tab
-                << "maxGrad: " << gMax(ppGradPatch.gradient()) << endl;
-
-        }
+        #include "updateFixedFluxPressureBC.H"
     }
 
-    {
-        // update phi2
-        phi2 = (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf());
+    // update phi2
+    phi2 = (phiHbyA - rAUf*fvc::snGrad(p_rgh)*mesh.magSf());
 
+    {
         // find face velocity difference between phi and phi2
         // resulting from  RhieChow-corr, ddtCorr and adjustPhi operations
         surfaceScalarField faceVelDiff(
