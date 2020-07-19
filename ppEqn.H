@@ -141,6 +141,9 @@
             U -= rAU*fvc::grad(pp);
             U.correctBoundaryConditions();
             fvOptions.correct(U);
+
+            p_rgh += pp;
+            p_rgh.correctBoundaryConditions();
         }
     }
 
