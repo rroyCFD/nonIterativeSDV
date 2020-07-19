@@ -125,22 +125,24 @@
         if (pimple.finalNonOrthogonalIter())
         {
             // Calculate the conservative fluxes
-            phi2 -= ppEqn.flux();
+            // phi2 -= ppEqn.flux();
+            phi = phi2 - ppEqn.flux();
 
             surfaceScalarField& ppEqnFlux = ppEqn.flux().ref();
             Info<< "min(ppEqn.flux()): " << gMin(ppEqnFlux) << tab
                 << "max(ppEqn.flux()): " << gMax(ppEqnFlux) << endl;
 
-            // // Explicitly relax pressure for momentum corrector
-            // pp.relax();
+            // Explicitly relax pressure for momentum corrector
+            pp.relax();
 
-            // // Correct the momentum source with the pressure gradient flux
-            // // calculated from the relaxed pressure
+            // Correct the momentum source with the pressure gradient flux
+            // calculated from the relaxed pressure
             // U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
-            // U.correctBoundaryConditions();
-            // fvOptions.correct(U);
+            U -= rAU*fvc::grad(pp);
+            U.correctBoundaryConditions();
+            fvOptions.correct(U);
         }
     }
 
-    // #include "adjustPressureLevel.H"
+    #include "adjustPressureLevel.H"
 }

@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
             #include "UEqn.H"
             Info << "\n ********* ppEqn solve ********* " << endl;
             #include "ppEqn.H"
-
+            /*
             Info << "\n ******** p_rghEqn solve ******** " << endl;
             #include "pEqn.H"
 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
                     << "min: " << gMin(phi) << tab
                     << "max: " << gMax(phi) << nl << endl;
 
-            }
+            }*/
             #include "turbulenceCorrect.H"
             #include "TEqn.H"
 
