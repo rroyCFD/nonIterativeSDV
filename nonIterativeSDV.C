@@ -82,14 +82,12 @@ int main(int argc, char *argv[])
     T.correctBoundaryConditions();
 
     // Time stepping loop.
-    while (runTime.run())
+    while (runTime.loop())
     {
         #include "readTimeControls.H"
         #include "CourantNo.H"
         #include "setDeltaT.H"
         #include "updateDivSchemeBlendingField.H"
-
-        runTime++;
 
         Info << "Time = " << runTime.timeName() << tab;
         Info << "Time Step = " << runTime.timeIndex() << endl;
@@ -103,47 +101,24 @@ int main(int argc, char *argv[])
             momentumSourceTerm.update(pimple.finalPimpleIter());
             temperatureSourceTerm.update(pimple.finalPimpleIter());
 
-            // non-iterative approach: a test for segregation error
+            // Predictor step.
+            Info << "   Predictor" << endl;
             #include "UEqn.H"
-            Info << "\n ********* ppEqn solve ********* " << endl;
-            #include "ppEqn.H"
-            /*
-            Info << "\n ******** p_rghEqn solve ******** " << endl;
-            #include "pEqn.H"
-
-            {
-                surfaceScalarField deltaPhi("deltaPhi", (phi - phi2));
-                Info<< "\n\nDiffrence of phi between p_rgh and pp solve: deltaPhi\n"
-                    << "min: " << gMin(deltaPhi) << tab
-                    << "max: " << gMax(deltaPhi) << nl << endl;
-
-                Info<< "phi "  << tab
-                    << "min: " << gMin(phi) << tab
-                    << "max: " << gMax(phi) << nl << endl;
-
-            }*/
             #include "turbulenceCorrect.H"
             #include "TEqn.H"
 
-            // // Predictor step.
-            // Info << "   Predictor" << endl;
+            // Corrector steps.
+            label corrIter = 1;
+            while (pimple.correct())
+            {
+                Info << "   Corrector Step " << corrIter << endl;
+                // Info << "\n ********* ppEqn solve ********* " << endl;
+                #include "ppEqn.H"
+                #include "turbulenceCorrect.H"
+                #include "TEqn.H"
 
-            // #include "UEqn.H"
-            // #include "turbulenceCorrect.H"
-            // #include "TEqn.H"
-
-            // // Corrector steps.
-            // int corrIter = 1;
-            // while (pimple.correct())
-            // {
-            //     Info << "   Corrector Step " << corrIter << endl;
-
-            //     #include "pEqn.H"
-            //     #include "turbulenceCorrect.H"
-            //     #include "TEqn.H"
-
-            //     corrIter++;
-            // }
+                ++corrIter;
+            }
 
             // Compute the continuity errors.
             #include "computeDivergence.H"
